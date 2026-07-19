@@ -1,69 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOC Threat Intel Hub</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>🔍 SOC Threat Intel Hub</h1>
-        <p>Analyze URLs, File Hashes, or APKs across multiple platforms.</p>
-        
-        <!-- API Key Section -->
-        <div class="api-section">
-            <input type="password" id="vtApiKey" placeholder="Enter VirusTotal API Key">
-        </div>
+<!-- Tabs Navigation -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="openTab('urlTab')">URL Checker</button>
+    <button class="tab-btn" onclick="openTab('hashTab')">Hash Checker</button>
+    <button class="tab-btn" onclick="openTab('fileTab')">File/APK</button>
+    <button class="tab-btn" onclick="openTab('settingsTab')">Settings</button>
+</div>
 
-        <!-- Navigation Tabs -->
-        <div class="tab-container">
-            <button class="tab-btn active" onclick="openTab('urlTab')">URL Checker</button>
-            <button class="tab-btn" onclick="openTab('hashTab')">Hash Checker</button>
-            <button class="tab-btn" onclick="openTab('fileTab')">File/APK Checker</button>
-        </div>
+<!-- Tabs Content -->
+<div id="urlTab" class="tab-content">
+    <input type="text" id="urlInput" placeholder="Enter URL here...">
+    <button onclick="scanURL()">Scan URL</button>
+</div>
 
-        <!-- URL Tab Content -->
-        <div id="urlTab" class="tab-content">
-            <div class="search-section">
-                <input type="text" id="urlInput" placeholder="https://example.com">
-                <button onclick="scanURL()">Scan URL</button>
-            </div>
-        </div>
+<div id="hashTab" class="tab-content hidden">
+    <input type="text" id="hashInput" placeholder="Enter MD5/SHA256 Hash...">
+    <button onclick="scanHash()">Scan Hash</button>
+</div>
 
-        <!-- Hash Tab Content -->
-        <div id="hashTab" class="tab-content hidden">
-            <div class="search-section">
-                <input type="text" id="hashInput" placeholder="Enter SHA-256 or MD5 Hash">
-                <button onclick="scanHash()">Scan Hash</button>
-            </div>
-        </div>
+<div id="fileTab" class="tab-content hidden">
+    <input type="file" id="fileInput">
+    <button onclick="scanFile()">Scan File</button>
+</div>
 
-        <!-- File/APK Tab Content -->
-        <div id="fileTab" class="tab-content hidden">
-            <div class="search-section">
-                <input type="file" id="fileInput">
-                <button onclick="scanFile()">Scan File/APK</button>
-            </div>
-        </div>
-
-        <!-- Loading & Results -->
-        <div id="loading" class="hidden">Scanning... Please wait...</div>
-
-        <div id="results" class="hidden">
-            <h2>Scan Results</h2>
-            <table id="resultsTable">
-                <thead>
-                    <tr>
-                        <th>Platform</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
+<!-- Settings Tab to Save API Key -->
+<div id="settingsTab" class="tab-content hidden">
+    <h3>API Configuration</h3>
+    <input type="password" id="vtApiKey" placeholder="Enter your VirusTotal API Key">
+    <button onclick="saveApiKey()">Save API Key</button>
+    <p><small>Your key is stored securely in your local browser.</small></p>
+</div>
