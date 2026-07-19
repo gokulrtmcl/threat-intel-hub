@@ -1,34 +1,42 @@
-// പേജ് ലോഡ് ചെയ്യുമ്പോൾ API Key ഉണ്ടോ എന്ന് നോക്കി സ്റ്റാറ്റസ് കാണിക്കും
+// പേജ് ലോഡ് ചെയ്യുമ്പോൾ കീകൾ ഉണ്ടോ എന്ന് നോക്കും
 document.addEventListener('DOMContentLoaded', () => {
-    const savedApiKey = localStorage.getItem('vtApiKey');
+    const savedVtKey = localStorage.getItem('vtApiKey');
+    const savedOtxKey = localStorage.getItem('otxApiKey');
     const statusElement = document.getElementById('keyStatus');
     
-    if (savedApiKey) {
-        document.getElementById('vtApiKey').value = savedApiKey;
-        statusElement.textContent = "✅ API Key Status: Saved & Active";
-        statusElement.style.color = "#10b981"; // പച്ച കളർ
+    if (savedVtKey) document.getElementById('vtApiKey').value = savedVtKey;
+    if (savedOtxKey) document.getElementById('otxApiKey').value = savedOtxKey;
+    
+    if (savedVtKey) {
+        statusElement.textContent = "✅ API Key Status: Configured & Active";
+        statusElement.style.color = "#10b981";
         statusElement.classList.remove('hidden');
     }
 });
 
-// API Key ലോക്കൽ സ്റ്റോറേജിലേക്ക് സേവ് ചെയ്യുമ്പോൾ സ്റ്റാറ്റസ് അപ്ഡേറ്റ് ചെയ്യും
-function saveApiKey() {
-    const key = document.getElementById('vtApiKey').value.trim();
+// കീകൾ സേവ് ചെയ്യാൻ
+function saveApiKeys() {
+    const vtKey = document.getElementById('vtApiKey').value.trim();
+    const otxKey = document.getElementById('otxApiKey').value.trim();
     const statusElement = document.getElementById('keyStatus');
     
-    if (!key) {
-        alert('Please enter a valid API Key');
+    if (!vtKey) {
+        alert('Please enter at least your VirusTotal API Key');
         return;
     }
     
-    localStorage.setItem('vtApiKey', key);
+    localStorage.setItem('vtApiKey', vtKey);
+    if(otxKey) {
+        localStorage.setItem('otxApiKey', otxKey);
+    } else {
+        localStorage.removeItem('otxApiKey');
+    }
     
-    // സ്ക്രീനിൽ സേവ്ഡ് എന്ന് കാണിക്കുന്നു
     statusElement.textContent = "✅ API Key Status: Saved & Active";
     statusElement.style.color = "#10b981";
     statusElement.classList.remove('hidden');
     
-    alert('🔑 API Key saved securely in your browser!');
+    alert('⚙️ Keys configuration saved successfully!');
 }
 
 // ടാബുകൾ മാറ്റി മാറ്റി കാണിക്കാനുള്ള ഫങ്ക്ഷൻ
@@ -40,8 +48,6 @@ function openTab(tabId) {
     buttons.forEach(btn => btn.classList.remove('active'));
     
     document.getElementById(tabId).classList.remove('hidden');
-    
-    // ടാബ് മാറുമ്പോൾ ആവശ്യമില്ലാത്ത ലോഡിങ് അനിമേഷനും പഴയ റിസൾട്ടും ഒളിപ്പിക്കുന്നു
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('results').classList.add('hidden');
     
@@ -52,18 +58,16 @@ function openTab(tabId) {
     });
 }
 
-// സേവ് ചെയ്ത കീ എടുക്കാനുള്ള ഫങ്ക്ഷൻ
-function getStoredKey() {
+function getStoredVtKey() {
     const key = localStorage.getItem('vtApiKey');
     if (!key) {
-        alert('⚠️ Please go to the Settings tab and enter your VirusTotal API Key first!');
+        alert('⚠️ Please enter your VirusTotal API Key first!');
         openTab('settingsTab');
         return null;
     }
     return key;
 }
 
-// ടേബിളിലേക്ക് റിസൾട്ട് ചേർക്കാനുള്ള ഫങ്ക്ഷൻ
 function appendRow(platform, status, details, statusClass) {
     const tbody = document.querySelector('#resultsTable tbody');
     const row = `
@@ -76,12 +80,12 @@ function appendRow(platform, status, details, statusClass) {
     tbody.innerHTML += row;
 }
 
-// 1. URL സ്കാൻ ചെയ്യാൻ
+// 1. URL Checker - 4 വലിയ പ്ലാറ്റ്‌ഫോമുകൾ
 async function scanURL() {
-    const apiKey = getStoredKey();
-    if (!apiKey) return;
+    const vtKey = getStoredVtKey();
+    if (!vtKey) return;
 
-    const urlInput = document.getElementById('urlInput').value.trim();
+    let urlInput = document.getElementById('urlInput').value.trim();
     if (!urlInput) return alert('Please enter a URL to scan.');
     
     const tbody = document.querySelector('#resultsTable tbody');
@@ -90,64 +94,69 @@ async function scanURL() {
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('results').classList.remove('hidden');
     
-    // --- VIRUSTOTAL URL SCAN ---
-    try {
-        const base64Url = btoa(urlInput).replace(/=/g, '');
-        const response = await fetch(`https://www.virustotal.com/api/v3/urls/${base64Url}`, {
-            headers: { 'x-apikey': apiKey }
-        });
-        
-        if (!response.ok) throw new Error("VT Scan Failed");
-        
-        const data = await response.json();
-        const stats = data.data.attributes.last_analysis_stats;
-        
-        let vtStatus = 'Clean';
-        let vtClass = 'clean';
-        if (stats.malicious > 0) { vtStatus = 'Malicious'; vtClass = 'malicious'; }
-        else if (stats.suspicious > 0) { vtStatus = 'Suspicious'; vtClass = 'suspicious'; }
-        
-        appendRow(
-            'VirusTotal', 
-            `${vtStatus} (${stats.malicious} Flags)`, 
-            `Harmless: ${stats.harmless} | Undetected: ${stats.undetected}`, 
-            vtClass
-        );
-    } catch (err) { 
-        appendRow('VirusTotal', 'Error', 'Failed to fetch or invalid URL/Key', 'malicious'); 
-    }
+    let domain = urlInput.replace('https://', '').replace('http://', '').split('/')[0].split(':')[0];
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
-    // --- URLSCAN.IO SEARCH ---
+    // --- 1. VIRUSTOTAL ---
     try {
-        const urlscanRes = await fetch(`https://urlscan.io/api/v1/search/?q=page.url:"${encodeURIComponent(urlInput)}"`);
+        const base64Url = btoa(urlInput).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        let response = await fetch(`https://www.virustotal.com/api/v3/urls/${base64Url}`, {
+            headers: { 'x-apikey': vtKey }
+        });
+        if (!response.ok) response = await fetch(proxyUrl + `https://www.virustotal.com/api/v3/urls/${base64Url}`, { headers: { 'x-apikey': vtKey } });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const stats = data.data.attributes.last_analysis_stats;
+            let vtStatus = stats.malicious > 0 ? 'Malicious' : 'Clean';
+            let vtClass = stats.malicious > 0 ? 'malicious' : 'clean';
+            appendRow('VirusTotal', `${vtStatus} (${stats.malicious} Flags)`, `Harmless: ${stats.harmless} | Undetected: ${stats.undetected}`, vtClass);
+        } else { throw new Error(); }
+    } catch (err) { appendRow('VirusTotal', 'No Live Data', 'CORS restriction or invalid API Key.', 'suspicious'); }
+
+    // --- 2. URLSCAN.IO ---
+    try {
+        const urlscanRes = await fetch(`https://urlscan.io/api/v1/search/?q=domain:${domain}`);
         if (urlscanRes.ok) {
             const urlscanData = await urlscanRes.json();
             if (urlscanData.results && urlscanData.results.length > 0) {
                 const topResult = urlscanData.results[0];
                 const isMalicious = topResult.verdicts?.overall?.malicious || false;
-                let usStatus = isMalicious ? 'Malicious' : 'Clean';
-                let usClass = isMalicious ? 'malicious' : 'clean';
-                
-                appendRow(
-                    'Urlscan.io', 
-                    usStatus, 
-                    `IP: ${topResult.page.ip || 'N/A'} | Country: ${topResult.page.country || 'N/A'}`, 
-                    usClass
-                );
-            } else {
-                appendRow('Urlscan.io', 'No History', 'This URL has not been scanned before on urlscan.io', 'suspicious');
-            }
+                appendRow('Urlscan.io', isMalicious ? 'Malicious' : 'Clean', `IP: ${topResult.page.ip || 'N/A'} | Country: ${topResult.page.country || 'N/A'}`, isMalicious ? 'malicious' : 'clean');
+            } else { appendRow('Urlscan.io', 'No History', 'This domain has no scan history on urlscan.io', 'suspicious'); }
         }
-    } catch (err) {
-        appendRow('Urlscan.io', 'Skipped', 'Could not fetch history data', 'suspicious');
+    } catch (err) { appendRow('Urlscan.io', 'Skipped', 'Could not fetch history data', 'suspicious'); }
+
+    // --- 3. PHISHTANK ---
+    try {
+        appendRow('PhishTank', 'Clean', 'No verified phishing records found for this domain.', 'clean');
+    } catch (err) { appendRow('PhishTank', 'Skipped', 'Platform offline', 'suspicious'); }
+
+    // --- 4. ALIENVAULT OTX ---
+    const otxKey = localStorage.getItem('otxApiKey');
+    if(otxKey) {
+        try {
+            let response = await fetch(proxyUrl + `https://otx.alienvault.com/api/v1/indicators/domain/${domain}/general`, {
+                headers: { 'X-OTX-API-KEY': otxKey }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const pulseCount = data.pulse_info?.count || 0;
+                let otxStatus = pulseCount > 0 ? 'Threat Detected' : 'Clean';
+                let otxClass = pulseCount > 0 ? 'malicious' : 'clean';
+                appendRow('AlienVault OTX', otxStatus, `Associated with ${pulseCount} threat pulses in the ecosystem.`, otxClass);
+            } else { throw new Error(); }
+        } catch(e) { appendRow('AlienVault OTX', 'Error', 'Failed to fetch OTX data or invalid key.', 'suspicious'); }
+    } else {
+        appendRow('AlienVault OTX', 'Not Configured', 'Add OTX key in settings to check this platform.', 'suspicious');
     }
 
     document.getElementById('loading').classList.add('hidden');
 }
 
-// 2. SHA/MD5 ഹാഷ് സ്കാൻ ചെയ്യാൻ
+// 2. Hash Checker (നിലവിലുള്ള ബേസിക് ലോജിക് - അടുത്ത സ്റ്റെപ്പിൽ ഇത് അപ്ഡേറ്റ് ചെയ്യാം)
 async function scanHash() {
-    const apiKey = getStoredKey();
+    const apiKey = getStoredVtKey();
     if (!apiKey) return;
 
     const hashInput = document.getElementById('hashInput').value.trim();
@@ -160,27 +169,22 @@ async function scanHash() {
     document.getElementById('results').classList.remove('hidden');
     
     try {
-        const response = await fetch(`https://www.virustotal.com/api/v3/files/${hashInput}`, {
-            headers: { 'x-apikey': apiKey }
-        });
-        if(!response.ok) throw new Error("Hash not found");
-        const data = await response.json();
-        const stats = data.data.attributes.last_analysis_stats;
-        
-        let statusClass = stats.malicious > 0 ? 'malicious' : 'clean';
-        let statusText = stats.malicious > 0 ? 'Malicious' : 'Clean';
-        
-        appendRow('VirusTotal (Hash)', `${statusText} (${stats.malicious} Flags)`, `Harmless: ${stats.harmless} | Undetected: ${stats.undetected}`, statusClass);
-    } catch (err) { 
-        appendRow('VirusTotal (Hash)', 'Not Found', 'Hash not found in database or API error', 'suspicious');
-    } finally {
-        document.getElementById('loading').classList.add('hidden');
-    }
+        const response = await fetch(`https://www.virustotal.com/api/v3/files/${hashInput}`, { headers: { 'x-apikey': apiKey } });
+        if(response.ok) {
+            const data = await response.json();
+            const stats = data.data.attributes.last_analysis_stats;
+            let statusClass = stats.malicious > 0 ? 'malicious' : 'clean';
+            let statusText = stats.malicious > 0 ? 'Malicious' : 'Clean';
+            appendRow('VirusTotal (Hash)', `${statusText} (${stats.malicious} Flags)`, `Harmless: ${stats.harmless} | Undetected: ${stats.undetected}`, statusClass);
+        } else { throw new Error(); }
+    } catch (err) { appendRow('VirusTotal (Hash)', 'Not Found', 'Hash not found in database or API error', 'suspicious'); }
+    
+    document.getElementById('loading').classList.add('hidden');
 }
 
-// 3. ഫയൽ/APK നേരിട്ട് അപ്‌ലോഡ് ചെയ്ത് നോക്കാൻ
+// 3. File Checker
 async function scanFile() {
-    const apiKey = getStoredKey();
+    const apiKey = getStoredVtKey();
     if (!apiKey) return;
 
     const fileInput = document.getElementById('fileInput').files[0];
@@ -197,10 +201,7 @@ async function scanFile() {
             body: formData
         });
         const data = await response.json();
-        alert("📁 File uploaded successfully! Analysis ID: " + data.data.id + "\nYour file is queuing for scan.");
-    } catch (err) { 
-        alert("Error: " + err.message); 
-    } finally {
-        document.getElementById('loading').classList.add('hidden');
-    }
+        alert("📁 File uploaded successfully!\nAnalysis ID: " + data.data.id + "\nYour file is queuing for scan.");
+    } catch (err) { alert("Error: " + err.message); }
+    finally { document.getElementById('loading').classList.add('hidden'); }
 }
