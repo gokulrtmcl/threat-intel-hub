@@ -56,7 +56,9 @@
                     <input type="password" id="vtApiKey" placeholder="Enter VirusTotal API Key">
                     <button onclick="saveApiKey()">Save Key</button>
                 </div>
-                <p class="secure-note">🛡️ Your key is stored locally in your browser and never sent to external servers.</p>
+                <!-- API Key സ്റ്റാറ്റസ് കാണിക്കാനുള്ള പുതിയ ലൈൻ -->
+                <p id="keyStatus" class="secure-note hidden" style="font-weight: bold; margin-bottom: 5px;"></p> 
+                <p class="secure-note" style="color: #94a3b8; margin-top: 5px;">🛡️ Your key is stored locally in your browser and never sent to external servers.</p>
             </div>
         </div>
 
