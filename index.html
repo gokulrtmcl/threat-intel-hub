@@ -1,31 +1,88 @@
-<!-- Tabs Navigation -->
-<div class="tabs">
-    <button class="tab-btn active" onclick="openTab('urlTab')">URL Checker</button>
-    <button class="tab-btn" onclick="openTab('hashTab')">Hash Checker</button>
-    <button class="tab-btn" onclick="openTab('fileTab')">File/APK</button>
-    <button class="tab-btn" onclick="openTab('settingsTab')">Settings</button>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Threat Intel Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 SOC Threat Intel Hub</h1>
+            <p>Multi-Platform Cyber Threat Aggregator</p>
+        </header>
+        
+        <!-- Navigation Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab('urlTab')">🌐 URL Checker</button>
+            <button class="tab-btn" onclick="openTab('hashTab')">🔑 Hash Checker</button>
+            <button class="tab-btn" onclick="openTab('fileTab')">📦 File/APK Checker</button>
+            <button class="tab-btn" onclick="openTab('settingsTab')">⚙️ Settings</button>
+        </div>
 
-<!-- Tabs Content -->
-<div id="urlTab" class="tab-content">
-    <input type="text" id="urlInput" placeholder="Enter URL here...">
-    <button onclick="scanURL()">Scan URL</button>
-</div>
+        <!-- URL Tab Content -->
+        <div id="urlTab" class="tab-content">
+            <div class="search-section">
+                <input type="text" id="urlInput" placeholder="https://example.com">
+                <button onclick="scanURL()">Scan URL</button>
+            </div>
+        </div>
 
-<div id="hashTab" class="tab-content hidden">
-    <input type="text" id="hashInput" placeholder="Enter MD5/SHA256 Hash...">
-    <button onclick="scanHash()">Scan Hash</button>
-</div>
+        <!-- Hash Tab Content -->
+        <div id="hashTab" class="tab-content hidden">
+            <div class="search-section">
+                <input type="text" id="hashInput" placeholder="Enter SHA-256 or MD5 Hash">
+                <button onclick="scanHash()">Scan Hash</button>
+            </div>
+        </div>
 
-<div id="fileTab" class="tab-content hidden">
-    <input type="file" id="fileInput">
-    <button onclick="scanFile()">Scan File</button>
-</div>
+        <!-- File/APK Tab Content -->
+        <div id="fileTab" class="tab-content hidden">
+            <div class="search-section">
+                <div class="file-upload-wrapper">
+                    <input type="file" id="fileInput">
+                </div>
+                <button onclick="scanFile()">Scan File</button>
+            </div>
+        </div>
 
-<!-- Settings Tab to Save API Key -->
-<div id="settingsTab" class="tab-content hidden">
-    <h3>API Configuration</h3>
-    <input type="password" id="vtApiKey" placeholder="Enter your VirusTotal API Key">
-    <button onclick="saveApiKey()">Save API Key</button>
-    <p><small>Your key is stored securely in your local browser.</small></p>
-</div>
+        <!-- Settings Tab Content -->
+        <div id="settingsTab" class="tab-content hidden">
+            <div class="settings-section">
+                <h3>🛠️ API Configuration</h3>
+                <p>Enter your VirusTotal API key below to enable live scanning.</p>
+                <div class="search-section">
+                    <input type="password" id="vtApiKey" placeholder="Enter VirusTotal API Key">
+                    <button onclick="saveApiKey()">Save Key</button>
+                </div>
+                <p class="secure-note">🛡️ Your key is stored locally in your browser and never sent to external servers.</p>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <span>Analyzing indicators... Please wait...</span>
+        </div>
+
+        <!-- Results Table -->
+        <div id="results" class="hidden">
+            <h2>📊 Analysis Results</h2>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Status</th>
+                        <th>Details / Intelligence Summary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Results will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
