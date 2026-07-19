@@ -51,21 +51,33 @@
         <div id="settingsTab" class="tab-content hidden">
             <div class="settings-section">
                 <h3>🛠️ API Configuration</h3>
-                <p>Enter your VirusTotal API key below to enable live scanning.</p>
-                <div class="search-section">
-                    <input type="password" id="vtApiKey" placeholder="Enter VirusTotal API Key">
-                    <button onclick="saveApiKey()">Save Key</button>
+                <p>Enter your API keys below to enable maximum threat intelligence detection.</p>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom:5px; color:#38bdf8; font-weight: bold;">VirusTotal API Key:</label>
+                    <div class="search-section">
+                        <input type="password" id="vtApiKey" placeholder="Enter VirusTotal API Key">
+                    </div>
                 </div>
-                <!-- API Key സ്റ്റാറ്റസ് കാണിക്കാനുള്ള പുതിയ ലൈൻ -->
-                <p id="keyStatus" class="secure-note hidden" style="font-weight: bold; margin-bottom: 5px;"></p> 
-                <p class="secure-note" style="color: #94a3b8; margin-top: 5px;">🛡️ Your key is stored locally in your browser and never sent to external servers.</p>
+
+                <div style="margin-bottom: 25px;">
+                    <label style="display:block; margin-bottom:5px; color:#38bdf8; font-weight: bold;">AlienVault OTX Key:</label>
+                    <div class="search-section">
+                        <input type="password" id="otxApiKey" placeholder="Enter AlienVault OTX Key">
+                    </div>
+                </div>
+
+                <button onclick="saveApiKeys()">Save Configuration</button>
+                
+                <p id="keyStatus" class="secure-note hidden" style="font-weight: bold; margin-bottom: 5px; margin-top: 15px;"></p> 
+                <p class="secure-note" style="color: #94a3b8; margin-top: 5px;">🛡️ Keys are stored locally in your browser and never sent to external servers.</p>
             </div>
         </div>
 
         <!-- Loading Spinner -->
         <div id="loading" class="hidden">
             <div class="spinner"></div>
-            <span>Analyzing indicators... Please wait...</span>
+            <span>Analyzing indicators across 4 platforms... Please wait...</span>
         </div>
 
         <!-- Results Table -->
