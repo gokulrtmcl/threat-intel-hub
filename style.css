@@ -17,10 +17,7 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    color: #38bdf8;
-    margin-bottom: 5px;
-}
+h1 { color: #38bdf8; margin-bottom: 5px; }
 
 .api-section, .search-section {
     margin: 20px 0;
@@ -28,7 +25,30 @@ h1 {
     gap: 10px;
 }
 
-input[type="text"], input[type="password"] {
+/* Tab Styling */
+.tab-container {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid #475569;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background-color: #334155;
+    color: #94a3b8;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.tab-btn.active {
+    background-color: #0ea5e9;
+    color: white;
+}
+
+input[type="text"], input[type="password"], input[type="file"] {
     flex: 1;
     padding: 12px;
     border-radius: 4px;
@@ -47,19 +67,9 @@ button {
     font-weight: bold;
 }
 
-button:hover {
-    background-color: #0284c7;
-}
-
-.hidden {
-    display: none;
-}
-
-#loading {
-    color: #fbbf24;
-    font-weight: bold;
-    margin: 15px 0;
-}
+button:hover { background-color: #0284c7; }
+.hidden { display: none; }
+#loading { color: #fbbf24; font-weight: bold; margin: 15px 0; }
 
 table {
     width: 100%;
@@ -73,11 +83,7 @@ th, td {
     border-bottom: 1px solid #475569;
 }
 
-th {
-    background-color: #334155;
-    color: #38bdf8;
-}
-
+th { background-color: #334155; color: #38bdf8; }
 .clean { color: #4ade80; font-weight: bold; }
 .malicious { color: #f87171; font-weight: bold; }
 .suspicious { color: #fbbf24; font-weight: bold; }
