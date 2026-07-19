@@ -1,33 +1,50 @@
-// പേജ് ലോഡ് ചെയ്യുമ്പോൾ API Key ഓട്ടോ ഫിൽ ചെയ്യും
+// പേജ് ലോഡ് ചെയ്യുമ്പോൾ API Key ഉണ്ടോ എന്ന് നോക്കി സ്റ്റാറ്റസ് കാണിക്കും
 document.addEventListener('DOMContentLoaded', () => {
     const savedApiKey = localStorage.getItem('vtApiKey');
+    const statusElement = document.getElementById('keyStatus');
+    
     if (savedApiKey) {
         document.getElementById('vtApiKey').value = savedApiKey;
+        statusElement.textContent = "✅ API Key Status: Saved & Active";
+        statusElement.style.color = "#10b981"; // പച്ച കളർ
+        statusElement.classList.remove('hidden');
     }
 });
 
-// API Key ലോക്കൽ സ്റ്റോറേജിലേക്ക് സേവ് ചെയ്യാൻ
+// API Key ലോക്കൽ സ്റ്റോറേജിലേക്ക് സേവ് ചെയ്യുമ്പോൾ സ്റ്റാറ്റസ് അപ്ഡേറ്റ് ചെയ്യും
 function saveApiKey() {
     const key = document.getElementById('vtApiKey').value.trim();
-    if (!key) return alert('Please enter a valid API Key');
+    const statusElement = document.getElementById('keyStatus');
+    
+    if (!key) {
+        alert('Please enter a valid API Key');
+        return;
+    }
+    
     localStorage.setItem('vtApiKey', key);
+    
+    // സ്ക്രീനിൽ സേവ്ഡ് എന്ന് കാണിക്കുന്നു
+    statusElement.textContent = "✅ API Key Status: Saved & Active";
+    statusElement.style.color = "#10b981";
+    statusElement.classList.remove('hidden');
+    
     alert('🔑 API Key saved securely in your browser!');
 }
 
 // ടാബുകൾ മാറ്റി മാറ്റി കാണിക്കാനുള്ള ഫങ്ക്ഷൻ
 function openTab(tabId) {
-    // എല്ലാ ടാബ് കണ്ടെന്റുകളും ഒളിപ്പിക്കുക
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(content => content.classList.add('hidden'));
     
-    // എല്ലാ ടാബ് ബട്ടണുകളിൽ നിന്നും active ക്ലാസ്സ് കളയുക
     const buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     
-    // ക്ലിക്ക് ചെയ്ത ടാബ് മാത്രം കാണിക്കുക
     document.getElementById(tabId).classList.remove('hidden');
     
-    // ക്ലിക്ക് ചെയ്ത ബട്ടണെ ആക്ടീവ് ആക്കുക
+    // ടാബ് മാറുമ്പോൾ ആവശ്യമില്ലാത്ത ലോഡിങ് അനിമേഷനും പഴയ റിസൾട്ടും ഒളിപ്പിക്കുന്നു
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('results').classList.add('hidden');
+    
     buttons.forEach(btn => {
         if(btn.getAttribute('onclick').includes(tabId)) {
             btn.classList.add('active');
@@ -68,7 +85,7 @@ async function scanURL() {
     if (!urlInput) return alert('Please enter a URL to scan.');
     
     const tbody = document.querySelector('#resultsTable tbody');
-    tbody.innerHTML = ''; // പഴയ റിസൾട്ടുകൾ ക്ലിയർ ചെയ്യുന്നു
+    tbody.innerHTML = ''; 
     
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('results').classList.remove('hidden');
